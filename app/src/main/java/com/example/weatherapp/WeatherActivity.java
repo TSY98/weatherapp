@@ -2,16 +2,21 @@ package com.example.weatherapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.weatherapp.gson.Forecast;
 import com.example.weatherapp.gson.Weather;
 import com.example.weatherapp.util.HttpUtil;
@@ -37,10 +42,19 @@ public class WeatherActivity extends AppCompatActivity {
     private LinearLayout forecastLayout;
     private ScrollView weatherLayout;
 
+    private ImageView bcImg;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
+
         setContentView(R.layout.activity_weather);
         titleCity=findViewById(R.id.title_city);
         titleUpdateTime = findViewById(R.id.title_update_time);
@@ -54,6 +68,8 @@ public class WeatherActivity extends AppCompatActivity {
         sportText = findViewById(R.id.sport_text);
         weatherLayout = findViewById(R.id.weather_layout);
 
+        bcImg = findViewById(R.id.bc_img);
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = prefs.getString("weather", null);
         if (weatherString != null) {
@@ -66,6 +82,14 @@ public class WeatherActivity extends AppCompatActivity {
             weatherLayout.setVisibility(View.INVISIBLE);
             //向服务器请求
             requestWeatherMassage(weather_id);
+        }
+
+        //背景图片的加载
+        String bc_img = prefs.getString("bc_Img", null);
+        if (bc_img != null) {
+            Glide.with(this).load(bc_img).into(bcImg);
+        }else {
+            loadBingPic();
         }
     }
 
@@ -105,6 +129,7 @@ public class WeatherActivity extends AppCompatActivity {
 
             }
         });
+        loadBingPic();
     }
 
 
@@ -153,5 +178,30 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
 
+    private void loadBingPic(){
+        String requestBingPic = "http://guolin.tech/api/bing_pic";
+        HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @SuppressLint("CommitPrefEdits")
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String bingPic = response.body().string();
+                SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                edit.putString("bc_Img", bingPic);
+                edit.apply();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(WeatherActivity.this).load(bingPic).into(bcImg);
+                    }
+                });
+
+            }
+        });
+    }
 }
 
