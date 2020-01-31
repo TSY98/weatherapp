@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_sitting"
+            android:icon="@drawable/nav_setting"
+            android:title="Sitting"/>
+        <item
+            android:id="@+id/nav_change"
+            android:icon="@drawable/nav_changes"
+            android:title="改变城市"/>
+        <item
+            android:id="@+id/nav_xx"
+            android:icon="@drawable/nav_changes"
+            android:title="X"/>
+        <item
+            android:id="@+id/nav_xxx"
+            android:icon="@drawable/nav_changes"
+            android:title="XXX"/>
+        <item
+            android:id="@+id/nav_xxxx"
+            android:icon="@drawable/nav_changes"
+            android:title="XXXX"/>
+    </group>
+
+</menu>
